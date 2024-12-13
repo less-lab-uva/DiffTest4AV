@@ -5,12 +5,12 @@
 
 This repository contains the code for the ICSE'25 submission "A Differential Testing Framework to Identify Critical AV Failures Leveraging Arbitrary Inputs"
 
-Due to liscensing limitations, the videos utilized in the experiment cannot be bundled with the anonymized repository. However, the AV and SUT outputs produced from the videos have been included.
+Due to liscensing limitations, the videos utilized in the experiment cannot be bundled with the repository; see [the datasets readme](./1_Datasets). However, the AV and SUT outputs produced from the videos have been included.
 
 # Repository Structure
 Folder Structure:
 * [0_Setup](/0_Setup) - Information on setting up and running the SUTs used in the experiment
-* [1_Datasets](/1_Datasets) - Placeholder for datasets - ommitted for anonymization.
+* [1_Datasets](/1_Datasets) - Placeholder for datasets - ommitted for licensing; see [the datasets readme](./1_Datasets).
 * [2_TransformVideos](/2_TransformVideos) - Scripts to normalize data in `1_Datasets`
 * :star: [3_Process](/3_Process) - Scripts to execute the experiment
   * :clipboard: [cache](/3_Process/cache) - Raw performance data from the SUTs evaluated on all videos.
