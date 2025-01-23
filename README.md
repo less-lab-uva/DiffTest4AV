@@ -2,12 +2,40 @@
 ![framework diagram](images/framework.png)
 ![example failure](images/011_Chicago_Billionaires_Millionaires_Lake_Shore_Mansions_The_North_Shore_15_frame3465.png)
 
+# Purpose
+Requested badge: ***Functional***
 
-This repository contains the code for the ICSE'25 submission "A Differential Testing Framework to Identify Critical AV Failures Leveraging Arbitrary Inputs"
+This repository contains the code for the ICSE'25 paper "A Differential Testing Framework to Identify Critical AV Failures Leveraging Arbitrary Inputs".
+As described below, the repository contains the code for replicating the experimental analysis performed in the paper, including generating all figures and tables.
+It also contains information on how to repeat the full experiment using user-provided datasets and systems.
 
-Due to liscensing limitations, the videos utilized in the experiment cannot be bundled with the repository; see [the datasets readme](./1_Datasets). However, the AV and SUT outputs produced from the videos have been included.
+# Provenance
+This repository is available on [GitHub](https://github.com/less-lab-uva/DiffTest4AV) and archived on [Software Heritage](https://archive.softwareheritage.org/swh:1:dir:91557e8d5b7a9bd009e0e903d92bbe54d4760a64;origin=https://github.com/less-lab-uva/DiffTest4AV;visit=swh:1:snp:48002601b6ecb59da36a47f3fa7d66220654db13;anchor=swh:1:rev:55f59152dd31cfe07bf06db08ca693397d48df2a).
+A preprint of the paper is [available](/DiffTest4AV_Preprint.pdf) in the repository.
 
-# Repository Structure
+# Data
+The main experiment consists of providing video input to 5 different AV systems and recording their steering angles in response to this video. 
+
+The steering angle output of the 5 AV systems are available in [/3_Process/cache/*]. 
+The usage information below describes how to use the provided scripts to reproduce the data from the paper.
+
+
+The input videos used in the experiment cannot be directly included in this repository due to licensing limitations. See [the datasets readme](./1_Datasets) for more information.
+
+
+# Setup
+With `conda` installed, run the following:
+
+```bash
+source create_env.sh
+```
+
+This will create the `difftest` conda environment and install all relevant dependencies.
+
+# Usage
+We first describe the structure of the repository and then describe how to utilize the scripts to reproduce the experimental analysis from the paper.
+
+## Repository Structure
 Folder Structure:
 * [0_Setup](/0_Setup) - Information on setting up and running the SUTs used in the experiment
 * [1_Datasets](/1_Datasets) - Placeholder for datasets - ommitted for licensing; see [the datasets readme](./1_Datasets).
@@ -16,13 +44,13 @@ Folder Structure:
   * :clipboard: [cache](/3_Process/cache) - Raw performance data from the SUTs evaluated on all videos.
   * :toolbox: :star2: [OutlierDetection.py](/3_Process/OutlierDetection.py) - Code to perform the statistical analysis of DiffTest4AV. This implementation uses the Dixon's Q test for outlier detection (`dixon`).
 
-# Reproducing the results in the paper
+## Reproducing the results in the paper
 The following was tested on a fresh install of Ubuntu 22.04 using [miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
 With `conda` installed, run the following:
 
 ```bash
-source create_env.sh
+source create_env.sh  # if not run during setup above
 source generate_figures.sh
 ```
 
