@@ -16,7 +16,7 @@ A preprint of the paper is [available](/DiffTest4AV_Preprint.pdf) in the reposit
 # Data
 The main experiment consists of providing video input to 5 different AV systems and recording their steering angles in response to this video. 
 
-The steering angle output of the 5 AV systems are available in [/3_Process/cache/*]. 
+The steering angle output of the 5 AV systems are available in [/3_Process/cache/*](/3_Process/cache/). 
 The usage information below describes how to use the provided scripts to reproduce the data from the paper.
 
 
@@ -58,7 +58,7 @@ The following was tested on a fresh install of Ubuntu 22.04 using [miniconda](ht
 ### Reproducing through Docker
 
 ```bash
-docker build -t difftest .
+docker build -t difftest .  # if not run during setup above
 docker run -it --rm -v $(pwd)/:/difftest difftest /bin/bash
 source generate_figures.sh
 ```
