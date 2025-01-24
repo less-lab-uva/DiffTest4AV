@@ -24,6 +24,14 @@ The input videos used in the experiment cannot be directly included in this repo
 
 
 # Setup
+## Running in Docker
+A Dockerfile is provided for convenience in replication. First, build the Docker image as:
+```bash
+docker build -t difftest .
+```
+
+## Running Locally
+If running locally (outside of Docker), first set up the Python environment.
 With `conda` installed, run the following:
 
 ```bash
@@ -47,6 +55,15 @@ Folder Structure:
 ## Reproducing the results in the paper
 The following was tested on a fresh install of Ubuntu 22.04 using [miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
+### Reproducing through Docker
+
+```bash
+docker build -t difftest .
+docker run -it --rm -v $(pwd)/:/difftest difftest /bin/bash
+source generate_figures.sh
+```
+
+### Reproducing Locally
 With `conda` installed, run the following:
 
 ```bash
@@ -54,9 +71,11 @@ source create_env.sh  # if not run during setup above
 source generate_figures.sh
 ```
 
+## Expected Results
 This will launch all of the scripts in succession to compute all of the figures and tables used in the paper. The scripts are heavily parallelized and will run for ~20 minutes on a machine with 32 cores; runtimes will vary based on available hardware.
 
 All figures will be saved in [3_Process/gen_figures/](3_Process/gen_figures). A version of these figures has been bundled with this repository; running the script will overwrite the included files.
+All `png` files generated should be an exact binary match with the original files bundled with the repository; however, the `pdf` version of the images may differ in the file binary due to system variations - the image itself is the same.
 
 The following table describes how to find the figures used in the paper.
 NOTE: all referenced frames from the paper, e.g. Figures 1, 3, 4, 5, 6, and 9 will appear as a blank image with steering angles only since the videos are not included.
