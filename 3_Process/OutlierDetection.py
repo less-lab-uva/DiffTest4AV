@@ -139,10 +139,10 @@ def contiguous_outlier_prob_range(range_start, num, possible_seqs, sut_not_outli
 
 class OutlierDetection:
     def __init__(self, readings, versions, label=''):
-        self.readings = readings
-        self.label = label
+        self.readings = readings  # a 2D array where the 1st index is the system index and the 2nd index is the frame ID
+        self.label = label  # an additional label for printing
         self.num_readings = self.readings.shape[1]
-        self.versions = versions
+        self.versions = versions # a 1D array of string labels for the different systems used
         self.last_version = self.versions[-1]
         self.outlier_probs, self.outlier_q, self.range_arr, self.gap_arr = dixon(self.readings)
         self.potential_outliers = []
@@ -363,133 +363,3 @@ class OutlierDetection:
 def print_and_write(string, file):
     file.write(f'{string}\n')
     print(string)
-
-def main():
-    # x = np.linspace(0, 1, 10000)
-    # for i in [3, 4, 5]:
-    #     plt.plot(x, direct_dixon(x, i), label=f'{i}')
-    # plt.xlabel('Gap/Range')
-    # plt.ylabel('Confidence in error')
-    # plt.legend()
-    # plt.show()
-    # quit()
-    print('Running')
-    parser = argparse.ArgumentParser(description="Used to identify which scenarios pass and which fail")
-    parser.add_argument('--dataset',
-                        type=str,
-                        choices=['External_Jutah', 'OpenPilot_2k19', 'OpenPilot_2016'],
-                        required=True,
-                        help="The dataset to use. Choose between 'External_Jutah', 'OpenPilot_2k19', or 'OpenPilot_2016'.")
-    parser.add_argument('--dataset_directory',
-                        type=str,
-                        default="../1_Datasets/Data",
-                        help="The location of the dataset")
-    args = parser.parse_args()
-    DATASET_DIRECTORY = f"{args.dataset_directory}/{args.dataset}"
-    # Get all video files
-    print(f'Searching in {DATASET_DIRECTORY}')
-    video_file_paths = glob.glob(f"{DATASET_DIRECTORY}/1_ProcessedData/*.mp4")
-    video_filenames = [os.path.basename(v)[:-4] for v in video_file_paths]
-    print(f'Found: {len(video_filenames)}')
-    video_filenames = sorted(video_filenames)
-    all_data = []
-    versions = []
-    cur_biggest = 0
-    cur_biggest_index = 0
-    for video_filename in tqdm(video_filenames, desc="Processing Video", leave=False, position=0,
-                               total=len(video_filenames)):
-        dl = DataLoader(filename=video_filename, data_path=args.dataset_directory)
-        dl.validate_h5_files()
-        dl.load_data(terminal_print=True, refresh_cache=False)
-        if len(versions) == 0:
-            versions.extend(dl.versions)
-        # Get the readings
-        readings = dl.readings
-        od = OutlierDetection(dl.readings, versions)
-        maximal = od.find_maximal_system_failure(4, 20, 0.9)
-        print(maximal)
-        maximal_decon = []
-        needed_frames = set()
-        for duration in maximal:
-            for (start_index, end_index) in maximal[duration]:
-                maximal_decon.append((duration, start_index, end_index))
-                for i in range(start_index-2, end_index+2):
-                    needed_frames.add(i)
-        needed_frames = list(needed_frames)
-        outer_save_dir = f'/p/difftest/highsev_lowconf_examples/sut4/{args.dataset}/cache/{video_filename}/'
-        dl.save_frames(needed_frames, outer_save_dir,
-                       steering={frame: od.readings[:, frame] for frame in needed_frames},
-                       labels=[' S1', ' S2', ' S3', ' S4', 'SUT'])
-        for duration, start_index, end_index in maximal_decon:
-            save_dir = f'/p/difftest/highsev_lowconf_examples/sut4/{args.dataset}/{duration}/{video_filename}/{start_index}/'
-            dl.save_frames([i for i in range(start_index-2, end_index+2)], save_dir,
-                           steering={frame: od.readings[:, frame] for frame in range(start_index-2, end_index+2)},
-                           labels=[' S1', ' S2', ' S3', ' S4', 'SUT'])
-            with open(f'{save_dir}/output.txt', 'w') as f:
-                np.set_printoptions(precision=2, suppress=True)
-                print_and_write(f'Duration {duration}', f)
-                print_and_write('readings', f)
-                print_and_write(od.readings[:, start_index - 2:end_index + 2], f)
-                print_and_write('potential_outliers', f)
-                print_and_write(od.potential_outliers[4, start_index - 2:end_index + 2], f)
-                print_and_write('outlier_probs', f)
-                print_and_write(100*od.outlier_probs[start_index - 2:end_index + 2], f)
-                print_and_write('gap_arr', f)
-                print_and_write(od.gap_arr[start_index - 2:end_index + 2], f)
-                print_and_write('range_arr', f)
-                print_and_write(od.range_arr[start_index - 2:end_index + 2], f)
-                np.set_printoptions(precision=3, suppress=True)
-                print_and_write('outlier_q', f)
-                print_and_write(od.outlier_q[start_index - 2:end_index + 2], f)
-                impact = max(od.gap_arr[start_index:end_index]*od.outlier_probs[start_index:end_index])
-                if impact > cur_biggest:
-                    cur_biggest = impact
-                    cur_biggest_index = (video_filename, start_index)
-        print('Biggest impact', cur_biggest_index, cur_biggest)
-        # remove NaNs
-        # readings = readings[:, ~np.isnan(readings).any(axis=0)]
-        all_data.append(readings)
-    all_data = np.concatenate(all_data, axis=1)
-    od = OutlierDetection(all_data, versions)
-    # maximal = od.find_maximal_system_failure(4, 20, 0.9)
-    # print(maximal)
-    # od.single_frame_binned_value_hist(4)
-    # od.single_frame_failures_hist(4)
-
-    # SEVERITIES = [10, 20, 45, 90, 180, 270]
-    # CONFIDENCES = [0.5, 0.75, 0.9, 0.95, 0.99, 0.999, 0.9999, 0.99999]
-    # maximal_length_df = pd.DataFrame(columns=CONFIDENCES)
-    # num_maximal_df = pd.DataFrame(columns=CONFIDENCES)
-    # with tqdm(total=len(SEVERITIES)*len(CONFIDENCES)) as pbar:
-    #     for severity in SEVERITIES:
-    #         max_length_arr = []
-    #         num_maximal_arr = []
-    #         for failure_prob_thresh in CONFIDENCES:
-    #             output = od.find_maximal_system_failure(od.last_version, severity, failure_prob_thresh)
-    #             maximal_length = max(output.keys())
-    #             num_maximal = len(output[maximal_length]) if maximal_length > 0 else 0
-    #             max_length_arr.append(maximal_length)
-    #             num_maximal_arr.append(num_maximal)
-    #             pbar.update(1)
-    #         maximal_length_df.loc[severity] = max_length_arr
-    #         num_maximal_df.loc[severity] = num_maximal_arr
-    # print('maximal length')
-    # print(maximal_length_df.to_latex())
-    # print('num maximal')
-    # print(num_maximal_df.to_latex())
-
-    # od.single_frame_failures(4, 0.99, 90)
-    # od.single_frame_failures_hist(3)
-    # od.single_frame_failures_hist(None)
-    # od.single_frame_failures_hist(4, 90)
-    # od.single_frame_failures_hist(None, 90)
-    # od.system_failure(3, 5, 2, 90, 0.5, threads=32)
-    # od.system_failure(3, 5, 5, 90, 0.5, threads=32)
-    # od.system_failure(3, 10, 5, 90, 0.5, threads=32)
-    # for i in range(6):
-    #     od.system_failure(4, 10, 5+i, 90, 0.5, threads=32)
-    # od.system_failure(3, 20, 15, 90, 0.5, threads=32)
-
-
-if __name__ == '__main__':
-    main()

@@ -15,17 +15,36 @@ A preprint of the paper is [available](/DiffTest4AV_Preprint.pdf) in the reposit
 
 # Data
 The main experiment consists of providing video input to 5 different AV systems and recording their steering angles in response to this video. 
+These responses are then analyzed using the differential testing approach proposed in the paper and implemented in [/3_Process/OutlierDetection.py](/3_Process/OutlierDetection.py).
 
-The steering angle output of the 5 AV systems are available in [/3_Process/cache/*](/3_Process/cache/). 
-The usage information below describes how to use the provided scripts to reproduce the data from the paper.
+## :star: Replicating the figures and data from the experiment
+The usage information in the [setup](#setup) and [reproduction](#reproducing-the-results-in-the-paper) sections below describe how to use the provided scripts to reproduce the data from the paper.
 
+The steering angle output of the 5 AV systems are available in [/3_Process/cache/*](/3_Process/cache/).
 
 The input videos used in the experiment cannot be directly included in this repository due to licensing limitations. See [the datasets readme](./1_Datasets) for more information.
+
+## Replicating the full pipeline
+To replicate the full experiment:
+1. First install the 5 SUTs following the process described in [0_Setup](/0_Setup).
+2. Then, obtain the datasets used in the experiment as explained in [1_Datasets](/1_Datasets); note: due to licensing limitations these cannot be directly included and must be obtained from their original sources.
+3. Finally, these datasets must be preprocessed into a common format as explained in [2_TransformVideos](/2_TransformVideos).
+4. Once the videos have been processed, follow the instructions for each of the different SUTs in [0_Setup](/0_Setup) to run each version of OpenPilot on the different videos.
+5. Follow the instructions for replicating the figures and data to utilize the scripts in [3_Process](/3_Process) to generate the figures.
+
+
+## Replicating the full pipeline for user-supplied data
+To replicate the pipeline on user-supplied videos, repeat the process above, but replace step 2 with adding user-supplied videos.
+These videos will still need to be preprocessed as described in step 3.
+
+To replicate the pipeline for other SUTs, the user must extract the steering angle readings from the SUT based on the video.
+The steering angles can then be processed directly by [3_Process/OutlierDetection.py](/3_Process/OutlierDetection.py) to identify failures as described in the paper.
 
 
 # Setup
 ## Running in Docker
-A Dockerfile is provided for convenience in replication. First, build the Docker image as:
+A Dockerfile is provided for convenience in replication of the figures and results based on the cached data provided.
+First, build the Docker image as:
 ```bash
 docker build -t difftest .
 ```
@@ -55,15 +74,15 @@ Folder Structure:
 ## Reproducing the results in the paper
 The following was tested on a fresh install of Ubuntu 22.04 using [miniconda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
-### Reproducing through Docker
+### Reproducing figures and results through Docker
 
 ```bash
 docker build -t difftest .  # if not run during setup above
-docker run -it --rm -v $(pwd)/:/difftest difftest /bin/bash
+docker run -it --rm -v "$(pwd)/:/difftest" difftest /bin/bash
 source generate_figures.sh
 ```
 
-### Reproducing Locally
+### Reproducing figures and results locally
 With `conda` installed, run the following:
 
 ```bash

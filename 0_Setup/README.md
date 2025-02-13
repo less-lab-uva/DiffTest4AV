@@ -1,6 +1,6 @@
 # OpenPilot Setup Guide
 
-This guide includes folders for each of the [openpilot](https://github.com/commaai/openpilot) installation guide. Specifically we have listed the three versions of [openpilot](https://github.com/commaai/openpilot) we used below:
+This guide includes folders for each of the [openpilot](https://github.com/commaai/openpilot) installation guide. Specifically we have listed the five versions of [openpilot](https://github.com/commaai/openpilot) we used below:
 
 
 ## Working Versions

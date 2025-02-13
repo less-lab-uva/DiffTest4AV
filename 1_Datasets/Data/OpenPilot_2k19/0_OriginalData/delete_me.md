@@ -1,0 +1,1 @@
+This file is a placeholder so that git preserves the intended file structure; please delete it before running any scripts if using the full data pipeline.
